@@ -3,191 +3,295 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Campus Life Game</title>
+<title>Campus Life 2.0</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101b25;color:white;font-family:Arial,sans-serif;overflow:hidden}
-#hud{position:absolute;top:18px;left:16px;z-index:2}
-h1{font-size:23px;margin:0;color:#63e6a2}
-#mission{margin-top:12px;background:#243743;padding:12px;border-radius:8px;font-size:13px}
-#status{position:absolute;top:125px;left:16px;right:16px;color:#fff;font-size:13px;z-index:2}
+body{margin:0;overflow:hidden;background:#8cc5ed;font-family:Arial,sans-serif;touch-action:none}
 canvas{display:block}
-#controls{position:absolute;bottom:22px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:3}
-button{border:2px solid #ffffff80;background:#183b36;color:white;border-radius:50%;width:68px;height:68px;font-weight:bold}
-#stick{height:110px;width:110px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff80;position:relative;touch-action:none}
-#knob{position:absolute;left:30px;top:30px;width:46px;height:46px;background:#ffffffbb;border-radius:50%}
+#hud{position:fixed;top:12px;left:12px;color:white;z-index:5;pointer-events:none}
+#title{font-size:19px;font-weight:900;text-shadow:2px 2px 4px #000}
+#mission{margin-top:6px;padding:9px 12px;background:#071b29d9;border:1px solid #ffffff40;border-radius:9px;font-size:12px;max-width:245px}
+#status{margin-top:5px;font-size:11px;color:#d8ffce;text-shadow:1px 1px 3px #000}
+#controls{position:fixed;bottom:20px;left:20px;width:140px;height:140px;border-radius:50%;background:#ffffff25;border:2px solid #ffffff80;z-index:5;touch-action:none}
+#stick{position:absolute;width:55px;height:55px;left:40px;top:40px;border-radius:50%;background:#ffffffb8;border:2px solid white;box-shadow:0 3px 12px #0005}
+#run{position:fixed;right:25px;bottom:36px;width:75px;height:75px;border-radius:50%;border:2px solid white;background:#e3a52b;color:#fff;font-weight:bold;font-size:14px;z-index:5;touch-action:none}
+#hint{position:fixed;right:12px;top:12px;color:white;font-size:11px;text-align:right;text-shadow:1px 1px 3px #000;z-index:5}
 </style>
 </head>
 <body>
 <div id="hud">
-<h1>CAMPUS LIFE 3D</h1>
-<div id="mission">MISSION 01<br>YOUR FIRST DAY ON CAMPUS</div>
+  <div id="title">CAMPUS LIFE 2.0</div>
+  <div id="mission">🌍 Explore your Nigerian university campus.</div>
+  <div id="status">Building the open world...</div>
 </div>
-<div id="status">Starting Campus Life Game...</div>
-<div id="controls">
-<div id="stick"><div id="knob"></div></div>
+<div id="hint">OPEN WORLD<br>WASD / JOYSTICK</div>
+<div id="controls"><div id="stick"></div></div>
 <button id="run">RUN</button>
-</div>
 
 <script type="module">
-const status = document.getElementById('status');
+const status = document.getElementById("status");
 
 try {
-  const THREE = await import(
-    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
-  );
+const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
 
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87b9d8);
-  scene.fog = new THREE.Fog(0x87b9d8, 45, 130);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x91c9ed);
+scene.fog = new THREE.Fog(0x91c9ed, 100, 260);
 
-  const camera = new THREE.PerspectiveCamera(
-    65, innerWidth / innerHeight, 0.1, 200
-  );
+const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 500);
+const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:"high-performance"});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled = false;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
 
-  const renderer = new THREE.WebGLRenderer({antialias:false});
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x56704a,2));
+const sun = new THREE.DirectionalLight(0xfff0d2,2.2);
+sun.position.set(45,80,30);
+scene.add(sun);
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x405040, 2));
+const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:0.9});
+const grass=mat(0x4c9a4b), road=mat(0x45494e), concrete=mat(0xc8c5bb);
+const white=mat(0xf0eee4), dark=mat(0x454c55), red=mat(0xb94c3b);
+const blue=mat(0x4987b8), gold=mat(0xe8bd54), green=mat(0x2f7540);
+const brown=mat(0x80553b), glass=mat(0x76b9d1), roof=mat(0x7b3430);
 
-  const sunlight = new THREE.DirectionalLight(0xffffff, 2);
-  sunlight.position.set(-20, 40, 20);
-  scene.add(sunlight);
+function box(name,x,y,z,w,h,d,material){
+ const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+ mesh.position.set(x,y+h/2,z);
+ mesh.name=name;
+ scene.add(mesh);
+ return mesh;
+}
+function ground(x,z,w,d,material=grass){
+ return box("Ground",x,-0.6,z,w,0.6,d,material);
+}
 
-  function material(color) {
-    return new THREE.MeshStandardMaterial({color});
+// Large continuous campus
+ground(0,0,240,240);
+box("Main campus road",0,-0.05,0,12,0.12,230,road);
+box("Cross campus road",0,0.01,0,230,0.12,12,road);
+
+// Road markings
+for(let z=-108;z<110;z+=9) box("Road marking",0,0.08,z,0.22,0.02,4,white);
+for(let x=-108;x<110;x+=9) box("Road marking",x,0.09,0,4,0.02,0.22,white);
+
+// University entrance
+box("Entrance gate left", -9,0,95,2,6,2,white);
+box("Entrance gate right", 9,0,95,2,6,2,white);
+box("Entrance arch",0,5,95,20,1.5,2,gold);
+box("Gate barrier",0,0.2,88,10,0.35,0.35,red);
+box("Security post",-15,0,88,5,3.2,5,white);
+box("Security roof",-15,3.2,88,5.5,0.4,5.5,roof);
+box("University sign",0,3,92,12,2,0.3,blue);
+
+// Building helper
+function building(name,x,z,w,d,h,color,tag){
+ box(name,x,0,z,w,h,d,mat(color));
+ box(name+" roof",x,h,z,w+0.5,0.35,d+0.5,roof);
+ for(let floor=1.4;floor<h;floor+=2.3){
+  for(let wx=-w/2+1;wx<w/2-0.5;wx+=2.5){
+   box("Window",x+wx,floor,z-d/2-0.025,1.15,0.9,0.08,glass);
+   box("Window",x+wx,floor,z+d/2+0.025,1.15,0.9,0.08,glass);
   }
+ }
+ box(tag,x,h+0.6,z,Math.min(w,12),0.55,0.25,gold);
+}
 
-  function box(x,y,z,w,h,d,color) {
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(w,h,d), material(color)
-    );
-    mesh.position.set(x,y,z);
-    scene.add(mesh);
-    return mesh;
-  }
+// Academic district
+building("Science Faculty",-29,-25,18,13,12,0xd9d5c7,"SCIENCE");
+building("Arts Faculty",29,-25,18,13,10,0xe5d3b8,"ARTS");
+building("Engineering Faculty",-29,-49,20,14,13,0xc3d5df,"ENGINEERING");
+building("Business School",29,-49,18,14,10,0xdcc6a7,"BUSINESS");
+building("University Library",0,-35,20,14,13,0xe8e0cc,"LIBRARY");
+building("Administration",-2,-62,19,12,11,0xd8d9d0,"ADMIN");
+building("ICT Centre",27,-67,15,12,8,0xc8d9e2,"ICT");
+building("Medical Centre",-28,-68,16,12,8,0xe7e3da,"MEDICAL");
 
-  box(0,-0.6,0,150,1,150,0x49834a);
-  box(0,0,0,12,0.1,150,0x45494d);
-  box(0,0.06,0,0.2,0.02,150,0xe8d87b);
+// Four standard hostels
+building("Girls Hostel A",-34,12,15,12,10,0xe9b9c8,"GIRLS A");
+building("Girls Hostel B",-34,30,15,12,10,0xe9b9c8,"GIRLS B");
+building("Boys Hostel A",34,12,15,12,10,0xb7d1e5,"BOYS A");
+building("Boys Hostel B",34,30,15,12,10,0xb7d1e5,"BOYS B");
 
-  function building(x,z,w,d,h,color) {
-    box(x,h/2,z,w,h,d,color);
-    box(x,h+0.15,z,w+0.5,0.3,d+0.5,0x963f32);
+// Luxury mixed residences
+building("Royal Heights",-53,48,20,16,15,0xf0d7a0,"ROYAL HEIGHTS");
+building("Platinum Residence",53,48,20,16,15,0xc7d9e5,"PLATINUM");
 
-    for(let floor=0;floor<Math.floor(h/3);floor++){
-      for(let wx=x-w/2+1.5;wx<x+w/2-0.5;wx+=2.7){
-        box(wx,1.5+floor*3,z-d/2-0.03,1,1.2,0.06,0x477e98);
-      }
-    }
-  }
+// Social district
+building("Campus Cafeteria",-55,-8,13,10,5,0xe8b56b,"CAFETERIA");
+building("Campus Supermarket",54,-8,12,10,5,0xe4d8b8,"MART");
+building("Printing Centre",-53,-25,10,8,4,0xc9d8dd,"PRINTING");
+building("Barber Shop",53,-25,10,8,4,0xd4b59b,"BARBER");
+building("Student Union",0,-83,20,12,8,0xd8d1bd,"STUDENT UNION");
 
-  building(-15,-20,18,12,8,0xd8c9a8);
-  building(15,-28,17,13,7,0xe0d7c5);
-  building(-16,24,18,12,8,0xd4c49c);
-  building(16,28,18,12,7,0xded6c2);
+// Love Garden
+ground(0,43,38,25,mat(0x438849));
+building("Love Garden Gazebo",0,43,7,6,3,0xd9c18a,"LOVE GARDEN");
+for(const [x,z] of [[-13,35],[13,35],[-13,50],[13,50],[-5,55],[5,55]]){
+ box("Garden bench",x,0.5,z,2.5,0.4,0.6,brown);
+ box("Bench back",x,1,z+0.25,2.5,0.8,0.2,brown);
+}
 
-  const player = new THREE.Group();
-  scene.add(player);
+// Religious centres
+building("Campus Chapel",-65,0,13,12,8,0xf1e7d3,"CHAPEL");
+box("Church cross",-65,9,0,0.5,2,0.3,gold);
+building("Victory Church",-65,20,15,12,9,0xe2d6bd,"VICTORY CHURCH");
+building("Central Mosque",65,0,15,13,8,0xe7e4d4,"CENTRAL MOSQUE");
+const dome=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),mat(0x4e9b8b));
+dome.scale.y=0.65; dome.position.set(65,9,0); scene.add(dome);
+box("Mosque minaret",74,0,0,2,12,2,white);
 
-  function playerBox(y,w,h,d,color,x=0) {
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(w,h,d), material(color)
-    );
-    mesh.position.set(x,y,0);
-    player.add(mesh);
-  }
+// Sports district
+ground(-70,-52,38,25,mat(0x428447));
+box("Football pitch",-70,0.08,-52,34,0.08,20,mat(0x367d3c));
+box("Pitch centre line",-70,0.14,-52,0.12,0.02,19,white);
+for(const x of [-87,-53]){
+ box("Goal post",x,0.1,-52,0.3,2.5,0.3,white);
+ box("Goal crossbar",x,2.5,-52,4,0.2,0.2,white);
+}
+ground(70,-52,28,20,mat(0x777c83));
+box("Tennis court",70,0.08,-52,25,0.1,16,mat(0x357e73));
+box("Tennis net",70,1,-52,0.15,1.5,16,white);
+box("Basketball court",-70,0.08,-83,22,0.1,13,mat(0x9b785b));
 
-  playerBox(1.4,0.8,1,0.4,0x2869cf);
-  playerBox(2.15,0.55,0.55,0.5,0xb77d55);
-  playerBox(2.4,0.58,0.2,0.52,0x252a30);
-  playerBox(0.55,0.28,0.8,0.32,0x26334a,-0.22);
-  playerBox(0.55,0.28,0.8,0.32,0x26334a,0.22);
-  player.position.set(0,0,5);
+// Abandoned building and surrounding bush
+ground(78,78,38,35,mat(0x285b32));
+building("Abandoned Building",78,78,18,13,9,0x77766e,"RESTRICTED");
+box("Broken wall",72,3,71,5,5,0.5,dark);
+box("Boarded window",84,4,71,2.2,2,0.3,brown);
+box("Warning sign",78,1.5,68,4,1.4,0.25,red);
 
-  const stick=document.getElementById('stick');
-  const knob=document.getElementById('knob');
-  let dx=0,dy=0,active=false;
-  stick.addEventListener('pointerdown',e=>{
-    active=true;
-    stick.setPointerCapture(e.pointerId);
-    moveStick(e);
-  });
-  stick.addEventListener('pointermove',e=>{if(active)moveStick(e)});
-  function moveStick(e){
-    const r=stick.getBoundingClientRect();
-    let x=e.clientX-(r.left+r.width/2);
-    let y=e.clientY-(r.top+r.height/2);
-    const len=Math.hypot(x,y),max=30;
-    if(len>max){x=x/len*max;y=y/len*max}
-    dx=x/max;dy=y/max;
-    knob.style.transform=`translate(${x}px,${y}px)`;
-  }
-  function reset(){
-    active=false;dx=dy=0;
-    knob.style.transform='translate(0,0)';
-  }
-  stick.addEventListener('pointerup',reset);
-  stick.addEventListener('pointercancel',reset);
+// Trees
+function tree(x,z,s=1){
+ const trunk= new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.4*s,2.4*s,6),brown);
+ trunk.position.set(x,1.2*s,z);scene.add(trunk);
+ const crown=new THREE.Mesh(new THREE.ConeGeometry(2*s,4*s,7),green);
+ crown.position.set(x,4*s,z);scene.add(crown);
+ const crown2=new THREE.Mesh(new THREE.ConeGeometry(1.5*s,3*s,7),mat(0x397d3c));
+ crown2.position.set(x,5.2*s,z);scene.add(crown2);
+}
+for(let z=-100;z<=100;z+=12){
+ tree(-93,z,1.1); tree(93,z,1.1);
+}
+for(let x=-85;x<=85;x+=15){
+ tree(x,-95,0.9); tree(x,92,0.9);
+}
+for(const [x,z] of [[-18,36],[18,36],[-18,52],[18,52],[-45,65],[45,65],[-48,-5],[48,-5],[-85,70],[-73,80],[89,72],[69,91]]){
+ tree(x,z,0.9);
+}
 
-  const keys={};
-  addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
-  addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+// Streetlights
+function lamp(x,z){
+ box("Lamp post",x,0.1,z,0.15,5,0.15,dark);
+ box("Lamp head",x,5.1,z,1,0.2,0.5,gold);
+}
+for(let z=-100;z<=90;z+=24){lamp(-8,z);lamp(8,z);}
+for(let x=-90;x<=90;x+=24){lamp(x,-8);lamp(x,8);}
 
-  let running=false;
-  const runButton=document.getElementById('run');
-  runButton.addEventListener('pointerdown',()=>running=true);
-  ['pointerup','pointercancel','pointerleave'].forEach(type=>
-    runButton.addEventListener(type,()=>running=false)
-  );
+// Player
+const player=new THREE.Group();
+const shirt=mat(0x202b47), skin=mat(0x9a6848), trousers=mat(0x20232a), shoes=mat(0xeeeeea);
+const body=new THREE.Mesh(new THREE.BoxGeometry(0.9,1.2,0.5),shirt);
+body.position.y=1.7;player.add(body);
+const head=new THREE.Mesh(new THREE.SphereGeometry(0.38,10,8),skin);
+head.position.y=2.65;player.add(head);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(0.39,10,6,0,Math.PI*2,0,Math.PI/2),dark);
+hair.position.y=2.85;player.add(hair);
+const leg1=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.9,0.36),trousers);
+leg1.position.set(-0.23,0.65,0);player.add(leg1);
+const leg2=leg1.clone();leg2.position.x=0.23;player.add(leg2);
+const arm1=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.95,0.28),shirt);
+arm1.position.set(-0.62,1.7,0);player.add(arm1);
+const arm2=arm1.clone();arm2.position.x=0.62;player.add(arm2);
+const foot1=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.18,0.5),shoes);
+foot1.position.set(-0.23,0.15,0.06);player.add(foot1);
+const foot2=foot1.clone();foot2.position.x=0.23;player.add(foot2);
+player.position.set(0,0,75);
+scene.add(player);
 
-  camera.position.set(0,5,14);
-  const clock=new THREE.Clock();
+// Controls
+const keys={};
+addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+const pad=document.getElementById("controls");
+const stick=document.getElementById("stick");
+const runButton=document.getElementById("run");
+let joyX=0,joyY=0,running=false,dragging=false;
+function joystick(e){
+ const r=pad.getBoundingClientRect();
+ const cx=r.left+r.width/2,cy=r.top+r.height/2;
+ let dx=e.clientX-cx,dy=e.clientY-cy;
+ const max=42,dist=Math.hypot(dx,dy);
+ if(dist>max){dx=dx/dist*max;dy=dy/dist*max;}
+ joyX=dx/max;joyY=dy/max;
+ stick.style.left=(42+dx)+"px";stick.style.top=(42+dy)+"px";
+}
+pad.addEventListener("pointerdown",e=>{dragging=true;pad.setPointerCapture(e.pointerId);joystick(e);});
+pad.addEventListener("pointermove",e=>{if(dragging)joystick(e);});
+function releaseJoy(){dragging=false;joyX=0;joyY=0;stick.style.left="40px";stick.style.top="40px";}
+pad.addEventListener("pointerup",releaseJoy);
+pad.addEventListener("pointercancel",releaseJoy);
+runButton.addEventListener("pointerdown",e=>{e.preventDefault();running=true;});
+runButton.addEventListener("pointerup",()=>running=false);
+runButton.addEventListener("pointercancel",()=>running=false);
+runButton.addEventListener("pointerleave",()=>running=false);
 
-  function animate(){
-    requestAnimationFrame(animate);
-    const dt=Math.min(clock.getDelta(),0.04);
+// Camera and movement
+let yaw=0;
+camera.position.set(0,7,85);
+const clock=new THREE.Clock();
+const forward=new THREE.Vector3();
+const right=new THREE.Vector3();
+const target=new THREE.Vector3();
+const offset=new THREE.Vector3();
 
-    let forward=(keys.w||keys.arrowup?1:0)
-      -(keys.s||keys.arrowdown?1:0)-dy;
-    let side=(keys.d||keys.arrowright?1:0)
-      -(keys.a||keys.arrowleft?1:0)+dx;
+function animate(){
+ requestAnimationFrame(animate);
+ const dt=Math.min(clock.getDelta(),0.04);
+ let f=(keys["w"]||keys["arrowup"]?1:0)-(keys["s"]||keys["arrowdown"]?1:0)-joyY;
+ let r=(keys["d"]||keys["arrowright"]?1:0)-(keys["a"]||keys["arrowleft"]?1:0)+joyX;
+ const length=Math.hypot(f,r);
+ if(length>1){f/=length;r/=length;}
+ forward.set(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+ right.set(1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+ const speed=running?13:7;
+ player.position.addScaledVector(forward,f*speed*dt);
+ player.position.addScaledVector(right,r*speed*dt);
+ player.position.x=THREE.MathUtils.clamp(player.position.x,-108,108);
+ player.position.z=THREE.MathUtils.clamp(player.position.z,-108,108);
+ if(Math.abs(f)+Math.abs(r)>0.05){
+  player.rotation.y=Math.atan2(-forward.x,-forward.z)+Math.atan2(r,f)*0.7;
+  const swing=Math.sin(performance.now()*0.012)*(running?0.65:0.35);
+  leg1.rotation.x=swing;leg2.rotation.x=-swing;
+  arm1.rotation.x=-swing*0.6;arm2.rotation.x=swing*0.6;
+ }else{
+  leg1.rotation.x=0;leg2.rotation.x=0;arm1.rotation.x=0;arm2.rotation.x=0;
+ }
+ target.set(player.position.x,2.1,player.position.z);
+ offset.set(0,5,9).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+ camera.position.lerp(target.clone().add(offset),1-Math.exp(-5*dt));
+ camera.lookAt(target);
+ const nearName=scene.children
+  .filter(o=>o.name && o.name!=="Ground" && o.name!=="Window")
+  .find(o=>o.position.distanceTo(player.position)<4);
+ document.getElementById("status").textContent =
+  "Campus explorer • "+Math.round(player.position.x)+", "+Math.round(player.position.z);
+ renderer.render(scene,camera);
+}
+status.textContent="Campus ready! Use the joystick to explore.";
+animate();
 
-    const length=Math.hypot(forward,side);
-    if(length>1){forward/=length;side/=length}
-
-    const speed=running?9:4.5;
-    player.position.z-=forward*speed*dt;
-    player.position.x+=side*speed*dt;
-    player.position.x=THREE.MathUtils.clamp(player.position.x,-65,65);
-    player.position.z=THREE.MathUtils.clamp(player.position.z,-65,65);
-
-    camera.position.lerp(
-      new THREE.Vector3(player.position.x,5,player.position.z+9),
-      1-Math.exp(-5*dt)
-    );
-    camera.lookAt(player.position.x,1.3,player.position.z);
-
-    renderer.render(scene,camera);
-  }
-
-  addEventListener('resize',()=>{
-    camera.aspect=innerWidth/innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth,innerHeight);
-  });
-
-  status.textContent='Game loaded! Explore your campus.';
-  animate();
-
+addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
 } catch(error) {
-  console.error(error);
-  status.textContent='3D loading failed: '+error.message+
-    '. Refresh the page or check your internet connection.';
-  status.style.color='#ff7777';
+ status.textContent="3D loading failed: "+error.message;
+ console.error(error);
 }
 </script>
 </body>
-  </html>
+</html>
