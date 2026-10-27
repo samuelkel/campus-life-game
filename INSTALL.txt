@@ -1,0 +1,21 @@
+CAMPUS LIFE 3.1 — UPGRADED SINGLE-FILE BUILD
+
+The complete game is in index.html. It uses Three.js from a public CDN, so the hosted game needs an internet connection.
+
+To publish on GitHub Pages:
+1. Open your campus-life-game repository.
+2. Open index.html and choose Edit.
+3. Select and delete all old contents. Do not leave any old lines before or after the new HTML.
+4. Paste the full new index.html contents.
+5. Commit changes.
+6. Wait for GitHub Pages to publish, then refresh the site. If an old copy remains, reload the page after a short wait.
+
+Controls:
+- Drag the joystick to move. Push it farther forward/outward to sprint (there is no separate run button).
+- Drag the right side of the screen to rotate the camera.
+- Tap INTERACT to talk to students or use nearby landmarks. Tap DRIVE when near the car.
+- Tap MAP to open the live top-down campus map.
+- Tap PHONE to open the in-game phone apps: Missions, Wallet, Messages, Contacts, Campus Guide and Settings.
+- Save/load is available in the menu and game phone.
+
+Note: JavaScript syntax was checked. A live in-browser test on the user's phone has not been performed.
