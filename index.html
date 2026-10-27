@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Campus Life Game</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101b25;color:white;font-family:Arial,sans-serif;overflow:hidden}
+#hud{position:absolute;top:18px;left:16px;z-index:2}
+h1{font-size:23px;margin:0;color:#63e6a2}
+#mission{margin-top:12px;background:#243743;padding:12px;border-radius:8px;font-size:13px}
+#status{position:absolute;top:125px;left:16px;right:16px;color:#fff;font-size:13px;z-index:2}
+canvas{display:block}
+#controls{position:absolute;bottom:22px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:3}
+button{border:2px solid #ffffff80;background:#183b36;color:white;border-radius:50%;width:68px;height:68px;font-weight:bold}
+#stick{height:110px;width:110px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff80;position:relative;touch-action:none}
+#knob{position:absolute;left:30px;top:30px;width:46px;height:46px;background:#ffffffbb;border-radius:50%}
+</style>
+</head>
+<body>
+<div id="hud">
+<h1>CAMPUS LIFE 3D</h1>
+<div id="mission">MISSION 01<br>YOUR FIRST DAY ON CAMPUS</div>
+</div>
+<div id="status">Starting Campus Life Game...</div>
+<div id="controls">
+<div id="stick"><div id="knob"></div></div>
+<button id="run">RUN</button>
+</div>
+
+<script type="module">
+const status = document.getElementById('status');
+
+try {
+  const THREE = await import(
+    'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
+  );
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87b9d8);
+  scene.fog = new THREE.Fog(0x87b9d8, 45, 130);
+
+  const camera = new THREE.PerspectiveCamera(
+    65, innerWidth / innerHeight, 0.1, 200
+  );
+
+  const renderer = new THREE.WebGLRenderer({antialias:false});
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  document.body.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x405040, 2));
+
+  const sunlight = new THREE.DirectionalLight(0xffffff, 2);
+  sunlight.position.set(-20, 40, 20);
+  scene.add(sunlight);
+
+  function material(color) {
+    return new THREE.MeshStandardMaterial({color});
+  }
+
+  function box(x,y,z,w,h,d,color) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w,h,d), material(color)
+    );
+    mesh.position.set(x,y,z);
+    scene.add(mesh);
+    return mesh;
+  }
+
+  box(0,-0.6,0,150,1,150,0x49834a);
+  box(0,0,0,12,0.1,150,0x45494d);
+  box(0,0.06,0,0.2,0.02,150,0xe8d87b);
+
+  function building(x,z,w,d,h,color) {
+    box(x,h/2,z,w,h,d,color);
+    box(x,h+0.15,z,w+0.5,0.3,d+0.5,0x963f32);
+
+    for(let floor=0;floor<Math.floor(h/3);floor++){
+      for(let wx=x-w/2+1.5;wx<x+w/2-0.5;wx+=2.7){
+        box(wx,1.5+floor*3,z-d/2-0.03,1,1.2,0.06,0x477e98);
+      }
+    }
+  }
+
+  building(-15,-20,18,12,8,0xd8c9a8);
+  building(15,-28,17,13,7,0xe0d7c5);
+  building(-16,24,18,12,8,0xd4c49c);
+  building(16,28,18,12,7,0xded6c2);
+
+  const player = new THREE.Group();
+  scene.add(player);
+
+  function playerBox(y,w,h,d,color,x=0) {
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(w,h,d), material(color)
+    );
+    mesh.position.set(x,y,0);
+    player.add(mesh);
+  }
+
+  playerBox(1.4,0.8,1,0.4,0x2869cf);
+  playerBox(2.15,0.55,0.55,0.5,0xb77d55);
+  playerBox(2.4,0.58,0.2,0.52,0x252a30);
+  playerBox(0.55,0.28,0.8,0.32,0x26334a,-0.22);
+  playerBox(0.55,0.28,0.8,0.32,0x26334a,0.22);
+  player.position.set(0,0,5);
+
+  const stick=document.getElementById('stick');
+  const knob=document.getElementById('knob');
+  let dx=0,dy=0,active=false;
+  stick.addEventListener('pointerdown',e=>{
+    active=true;
+    stick.setPointerCapture(e.pointerId);
+    moveStick(e);
+  });
+  stick.addEventListener('pointermove',e=>{if(active)moveStick(e)});
+  function moveStick(e){
+    const r=stick.getBoundingClientRect();
+    let x=e.clientX-(r.left+r.width/2);
+    let y=e.clientY-(r.top+r.height/2);
+    const len=Math.hypot(x,y),max=30;
+    if(len>max){x=x/len*max;y=y/len*max}
+    dx=x/max;dy=y/max;
+    knob.style.transform=`translate(${x}px,${y}px)`;
+  }
+  function reset(){
+    active=false;dx=dy=0;
+    knob.style.transform='translate(0,0)';
+  }
+  stick.addEventListener('pointerup',reset);
+  stick.addEventListener('pointercancel',reset);
+
+  const keys={};
+  addEventListener('keydown',e=>keys[e.key.toLowerCase()]=true);
+  addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+  let running=false;
+  const runButton=document.getElementById('run');
+  runButton.addEventListener('pointerdown',()=>running=true);
+  ['pointerup','pointercancel','pointerleave'].forEach(type=>
+    runButton.addEventListener(type,()=>running=false)
+  );
+
+  camera.position.set(0,5,14);
+  const clock=new THREE.Clock();
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt=Math.min(clock.getDelta(),0.04);
+
+    let forward=(keys.w||keys.arrowup?1:0)
+      -(keys.s||keys.arrowdown?1:0)-dy;
+    let side=(keys.d||keys.arrowright?1:0)
+      -(keys.a||keys.arrowleft?1:0)+dx;
+
+    const length=Math.hypot(forward,side);
+    if(length>1){forward/=length;side/=length}
+
+    const speed=running?9:4.5;
+    player.position.z-=forward*speed*dt;
+    player.position.x+=side*speed*dt;
+    player.position.x=THREE.MathUtils.clamp(player.position.x,-65,65);
+    player.position.z=THREE.MathUtils.clamp(player.position.z,-65,65);
+
+    camera.position.lerp(
+      new THREE.Vector3(player.position.x,5,player.position.z+9),
+      1-Math.exp(-5*dt)
+    );
+    camera.lookAt(player.position.x,1.3,player.position.z);
+
+    renderer.render(scene,camera);
+  }
+
+  addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+
+  status.textContent='Game loaded! Explore your campus.';
+  animate();
+
+} catch(error) {
+  console.error(error);
+  status.textContent='3D loading failed: '+error.message+
+    '. Refresh the page or check your internet connection.';
+  status.style.color='#ff7777';
+}
+</script>
+</body>
+  </html>
