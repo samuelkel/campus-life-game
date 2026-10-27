@@ -1,224 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Campus Life 2.1</title>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Campus Life 2.2</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#8fc7ec;font-family:Arial,sans-serif;touch-action:none}
-canvas{display:block}
-#hud{position:fixed;top:12px;left:12px;color:white;z-index:4;pointer-events:none;text-shadow:1px 2px 3px #111}
-#title{font-weight:900;font-size:20px}
-#mission{margin-top:5px;background:#10202cdd;border-radius:8px;padding:8px 10px;font-size:12px;max-width:245px}
-#status{font-size:11px;margin-top:5px}
-#joystick{position:fixed;left:20px;bottom:22px;width:132px;height:132px;border:2px solid #ffffff99;border-radius:50%;background:#ffffff25;z-index:5;touch-action:none}
-#knob{position:absolute;left:39px;top:39px;width:50px;height:50px;border-radius:50%;background:#ffffffcc;border:2px solid white}
-#run{position:fixed;right:22px;bottom:33px;width:74px;height:74px;border-radius:50%;background:#e9a72e;border:2px solid white;color:#fff;font-weight:900;z-index:6;touch-action:none}
-#look{position:fixed;right:0;top:0;width:55%;height:72%;z-index:3;touch-action:none}
-#lookHint{position:fixed;right:12px;top:15px;z-index:4;color:white;text-shadow:1px 1px 3px #000;font-size:11px;text-align:right;pointer-events:none}
-#notice{position:fixed;left:50%;top:46%;transform:translate(-50%,-50%);background:#10202ce8;color:white;padding:10px 15px;border-radius:8px;font-size:12px;z-index:7;opacity:0;pointer-events:none;transition:opacity .3s}
-</style>
-</head>
-<body>
-<div id="hud">
- <div id="title">CAMPUS LIFE 2.1</div>
- <div id="mission">🇳🇬 Explore campus. Find your own path.</div>
- <div id="status">Loading 3D world...</div>
-</div>
-<div id="look"></div>
-<div id="lookHint">DRAG HERE TO<br>LOOK AROUND</div>
-<div id="joystick"><div id="knob"></div></div>
-<button id="run">RUN</button>
-<div id="notice"></div>
-
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#91c9ed;font-family:Arial;touch-action:none}canvas{display:block}
+#hud{position:fixed;z-index:5;top:12px;left:12px;color:white;text-shadow:1px 2px 3px #111;pointer-events:none}#title{font-size:19px;font-weight:900}#mission{margin-top:5px;background:#10202cdd;padding:8px;border-radius:8px;font-size:12px;max-width:240px}#status{font-size:11px;margin-top:5px}
+#joystick{position:fixed;z-index:6;left:20px;bottom:22px;width:132px;height:132px;border:2px solid #ffffff99;border-radius:50%;background:#ffffff25;touch-action:none}#knob{position:absolute;left:39px;top:39px;width:50px;height:50px;border-radius:50%;background:#ffffffcc;border:2px solid white}
+#run{position:fixed;z-index:7;right:22px;bottom:33px;width:74px;height:74px;border-radius:50%;background:#e9a72e;border:2px solid white;color:white;font-weight:900;touch-action:none}#look{position:fixed;z-index:4;right:0;top:0;width:55%;height:72%;touch-action:none}#lookHint{position:fixed;z-index:5;right:12px;top:15px;color:white;text-shadow:1px 1px 3px #000;font-size:11px;text-align:right;pointer-events:none}
+</style></head><body>
+<div id="hud"><div id="title">CAMPUS LIFE 2.2</div><div id="mission">ðŸ‡³ðŸ‡¬ Living Campus â€¢ Explore and meet students</div><div id="status">Loading...</div></div>
+<div id="look"></div><div id="lookHint">DRAG HERE TO<br>LOOK AROUND</div><div id="joystick"><div id="knob"></div></div><button id="run">RUN</button>
 <script type="module">
-const status=document.getElementById("status");
 try{
-const THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
-
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x91c9ed);
-scene.fog=new THREE.Fog(0x91c9ed,100,260);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
-const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
-renderer.setSize(innerWidth,innerHeight);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-document.body.appendChild(renderer.domElement);
-
-scene.add(new THREE.HemisphereLight(0xffffff,0x56704a,2));
-const sun=new THREE.DirectionalLight(0xfff0d2,2);
-sun.position.set(40,80,25);scene.add(sun);
-
-const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.9});
-const grass=mat(0x4c984a),asphalt=mat(0x454950),white=mat(0xf1eee3);
-const red=mat(0xb94c3b),gold=mat(0xe8bd54),green=mat(0x347741);
-const brown=mat(0x795039),glass=mat(0x76b9d1),roof=mat(0x783a32);
-const blue=mat(0x3e80b4),skin=mat(0x9b6848),shirt=mat(0x222b46);
-const pants=mat(0x252630),shoes=mat(0xf3f0e7);
-
+const T=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+const scene=new T.Scene();scene.background=new T.Color(0x91c9ed);scene.fog=new T.Fog(0x91c9ed,120,270);
+const camera=new T.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
+const renderer=new T.WebGLRenderer({antialias:false,powerPreference:"high-performance"});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=T.SRGBColorSpace;document.body.appendChild(renderer.domElement);
+scene.add(new T.HemisphereLight(0xffffff,0x56704a,2));const sun=new T.DirectionalLight(0xfff0d2,2);sun.position.set(40,80,25);scene.add(sun);
+const M=c=>new T.MeshStandardMaterial({color:c,roughness:.9}), grass=M(0x4c984a),road=M(0x454950),white=M(0xf1eee3),red=M(0xb94c3b),gold=M(0xe8bd54),green=M(0x347741),brown=M(0x795039),glass=M(0x76b9d1),roof=M(0x783a32),blue=M(0x3e80b4),skin=M(0x9b6848),shirt=M(0x222b46),pants=M(0x252630),shoes=M(0xf3f0e7);
 const obstacles=[];
-const dummy=new THREE.Object3D();
-
-function block(name,x,y,z,w,h,d,material,solid=true){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
- m.position.set(x,y+h/2,z);m.name=name;scene.add(m);
- if(solid)obstacles.push({x,z,hw:w/2,hd:d/2,name});
- return m;
-}
-function ground(x,z,w,d,material=grass){
- return block("Ground",x,-.6,z,w,.6,d,material,false);
-}
-ground(0,0,240,240);
-block("Main road",0,-.05,0,12,.12,230,asphalt,false);
-block("Cross road",0,.01,0,230,.12,12,asphalt,false);
-for(let z=-108;z<110;z+=9)block("Road marking",0,.08,z,.22,.02,4,white,false);
-for(let x=-108;x<110;x+=9)block("Road marking",x,.09,0,4,.02,.22,white,false);
-
-// Entrance
-block("Gate pillar",-9,0,95,2,6,2,white);
-block("Gate pillar",9,0,95,2,6,2,white);
-block("Entrance arch",0,5,95,20,1.5,2,gold);
-block("Security booth",-15,0,88,5,3.2,5,white);
-block("Security booth roof",-15,3.2,88,5.5,.4,5.5,roof);
-block("Gate barrier",0,.2,88,10,.35,.35,red);
-block("Campus sign",0,3,92,12,2,.3,blue);
-
-// Buildings with solid footprints
-function building(name,x,z,w,d,h,color,label){
- block(name,x,0,z,w,h,d,mat(color));
- block(name+" roof",x,h,z,w+.5,.35,d+.5,roof);
- for(let y=1.5;y<h;y+=2.4){
-  for(let wx=-w/2+1;wx<w/2-1;wx+=2.8){
-   block("Window",x+wx,y,z-d/2-.05,1.1,.9,.08,glass,false);
-   block("Window",x+wx,y,z+d/2+.05,1.1,.9,.08,glass,false);
-  }
- }
- block(label,x,h+.45,z,Math.min(w,12),.45,.25,gold,false);
-}
-building("Science Faculty",-29,-25,18,13,12,0xd9d5c7,"SCIENCE");
-building("Arts Faculty",29,-25,18,13,10,0xe5d3b8,"ARTS");
-building("Engineering Faculty",-29,-49,20,14,13,0xc3d5df,"ENGINEERING");
-building("Business School",29,-49,18,14,10,0xdcc6a7,"BUSINESS");
-building("Library",0,-35,20,14,13,0xe8e0cc,"LIBRARY");
-building("Administration",-2,-62,19,12,11,0xd8d9d0,"ADMIN");
-building("ICT Centre",27,-67,15,12,8,0xc8d9e2,"ICT");
-building("Medical Centre",-28,-68,16,12,8,0xe7e3da,"MEDICAL");
-
-// Standard hostels: 2 girls, 2 boys
-building("Girls Hostel A",-34,12,15,12,10,0xe9b9c8,"GIRLS A");
-building("Girls Hostel B",-34,30,15,12,10,0xe9b9c8,"GIRLS B");
-building("Boys Hostel A",34,12,15,12,10,0xb7d1e5,"BOYS A");
-building("Boys Hostel B",34,30,15,12,10,0xb7d1e5,"BOYS B");
-
-// Luxury mixed hostels
-building("Royal Heights",-53,48,20,16,15,0xf0d7a0,"ROYAL HEIGHTS");
-building("Platinum Residence",53,48,20,16,15,0xc7d9e5,"PLATINUM");
-
-// Shops and student spaces
-building("Cafeteria",-55,-8,13,10,5,0xe8b56b,"CAFETERIA");
-building("Supermarket",54,-8,12,10,5,0xe4d8b8,"MART");
-building("Printing Centre",-53,-25,10,8,4,0xc9d8dd,"PRINTING");
-building("Barber Shop",53,-25,10,8,4,0xd4b59b,"BARBER");
-building("Student Union",0,-83,20,12,8,0xd8d1bd,"STUDENT UNION");
-
-// Love Garden
-ground(0,43,38,25,mat(0x438849));
-block("Love Garden Gazebo",0,0,43,7,3,6,mat(0xd9c18a));
-for(const [x,z] of [[-13,35],[13,35],[-13,50],[13,50],[-5,55],[5,55]]){
- block("Garden bench",x,.5,z,2.5,.4,.6,brown);
- block("Bench back",x,1,z+.25,2.5,.8,.2,brown);
-}
-
-// Churches and mosque
-building("Campus Chapel",-65,0,13,12,8,0xf1e7d3,"CHAPEL");
-block("Church cross",-65,9,0,.5,2,.3,gold,false);
-building("Victory Church",-65,20,15,12,9,0xe2d6bd,"VICTORY CHURCH");
-building("Central Mosque",65,0,15,13,8,0xe7e4d4,"CENTRAL MOSQUE");
-const dome=new THREE.Mesh(new THREE.SphereGeometry(3,10,8),mat(0x4e9b8b));
-dome.scale.y=.65;dome.position.set(65,9,0);scene.add(dome);
-block("Minaret",74,0,0,2,12,2,white);
-
-// Sports areas
-ground(-70,-52,38,25,mat(0x428447));
-block("Football pitch",-70,.08,-52,34,.08,20,mat(0x367d3c),false);
-block("Pitch line",-70,.14,-52,.12,.02,19,white,false);
-for(const x of [-87,-53]){
- block("Goal post",x,.1,-52,.3,2.5,.3,white,false);
- block("Goal crossbar",x,2.5,-52,4,.2,.2,white,false);
-}
-ground(70,-52,28,20,mat(0x777c83));
-block("Tennis court",70,.08,-52,25,.1,16,mat(0x357e73),false);
-block("Tennis net",70,1,-52,.15,1.5,16,white,false);
-block("Basketball court",-70,.08,-83,22,.1,13,mat(0x9b785b),false);
-
-// Restricted unfinished building
-ground(78,78,38,35,mat(0x285b32));
-building("Abandoned Building",78,78,18,13,9,0x77766e,"RESTRICTED");
-block("Broken wall",72,3,71,5,5,.5,mat(0x55554f));
-block("Boarded window",84,4,71,2.2,2,.3,brown);
-block("Warning sign",78,1.5,68,4,1.4,.25,red);
-
-// Trees
-function tree(x,z,s=1){
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.25*s,.4*s,2.4*s,6),brown);
- trunk.position.set(x,1.2*s,z);scene.add(trunk);
- const crown=new THREE.Mesh(new THREE.ConeGeometry(2*s,4*s,7),green);
- crown.position.set(x,4*s,z);scene.add(crown);
- const crown2=new THREE.Mesh(new THREE.ConeGeometry(1.5*s,3*s,7),mat(0x397d3c));
- crown2.position.set(x,5.2*s,z);scene.add(crown2);
- obstacles.push({x,z,hw:.7*s,hd:.7*s,name:"Tree"});
-}
-for(let z=-100;z<=100;z+=12){tree(-93,z,1.1);tree(93,z,1.1);}
-for(let x=-85;x<=85;x+=15){tree(x,-95,.9);tree(x,92,.9);}
-for(const [x,z] of [[-18,36],[18,36],[-18,52],[18,52],[-45,65],[45,65],[-48,-5],[48,-5],[-85,70],[-73,80],[89,72],[69,91]])tree(x,z,.9);
-
-// Lamp posts
-for(let z=-100;z<=90;z+=24)for(const x of [-8,8]){
- block("Lamp post",x,0,z,.15,5,.15,mat(0x343941),false);
- block("Lamp head",x,5.1,z,1,.2,.5,gold,false);
-}
-
-// Streetwear character: oversized tee, trousers, sneakers
-const player=new THREE.Group();
-function part(w,h,d,material,x,y,z){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
- m.position.set(x,y,z);player.add(m);return m;
-}
-part(.95,1.1,.52,shirt,0,1.65,0); // oversized tee
-part(.42,.43,.42,skin,0,2.45,0); // head
-const hair=new THREE.Mesh(new THREE.SphereGeometry(.43,10,7,0,Math.PI*2,0,Math.PI/2),mat(0x171717));
-hair.position.set(0,2.63,0);player.add(hair);
-part(.28,.28,.28,skin,-.49,1.9,0);
-part(.28,.28,.28,skin,.49,1.9,0);
-const legL=part(.34,.85,.37,pants,-.24,.72,0);
-const legR=part(.34,.85,.37,pants,.24,.72,0);
-const armL=part(.24,.85,.27,shirt,-.62,1.65,0);
-const armR=part(.24,.85,.27,shirt,.62,1.65,0);
-const shoeL=part(.38,.19,.55,shoes,-.24,.19,-.04);
-const shoeR=part(.38,.19,.55,shoes,.24,.19,-.04);
-player.position.set(0,0,75);scene.add(player);
-
-// Controls
-const keys={};
-addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
-addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-
-const pad=document.getElementById("joystick");
-const knob=document.getElementById("knob");
-let joyX=0,joyY=0,joyActive=false;
-function moveJoy(e){
- const r=pad.getBoundingClientRect();
- let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
- const max=40,len=Math.hypot(dx,dy);
- if(len>max){dx=dx/len*max;dy=dy/len*max;}
- joyX=dx/max;joyY=dy/max;
- knob.style.left=(41+dx)+"px";knob.style.top=(41+dy)+"px";
-}
-function resetJoy(){joyActive=false;joyX=joyY=0;knob.style.left="39px";knob.style.top="39px";}
-pad.addEventListener("pointerdown",e=>{e.preventDefault();joyActive=true;pad.setPointerCapture(e.pointerId);moveJoy(e);});
-pad.addEventListener("pointermove",e=>{if(joyActive)moveJoy(e);});
+function box(name,x,y,z,w,h,d,material,solid=true){const o=new T.Mesh(new T.BoxGeometry(w,h,d),material);o.position.set(x,y+h/2,z);o.name=name;scene.add(o);if(solid)obstacles.push({x,z,hw:w/2,hd:d/2,name});return o}
+function ground(x,z,w,d,c=grass){box("Ground",x,-.6,z,w,.6,d,c,false)}
+ground(0,0,240,240);box("Main road",0,-.05,0,12,.12,230,road,false);box("Cross road",0,.01,0,230,.12,12,road,false);
+for(let z=-108;z<110;z+=9)box("Road marking",0,.08,z,.22,.02,4,white,false);for(let x=-108;x<110;x+=9)box("Road marking",x,.09,0,4,.02,.22,white,false);
+box("Gate pillar",-9,0,95,2,6,2,white);box("Gate pillar",9,0,95,2,6,2,white);box("Entrance arch",0,5,95,20,1.5,2,gold);box("Security booth",-15,0,88,5,3.2,5,white);box("Booth roof",-15,3.2,88,5.5,.4,5.5,roof);box("Gate barrier",0,.2,88,10,.35,.35,red);box("Campus sign",0,3,92,12,2,.3,blue);
+function building(n,x,z,w,d,h,c,label){box(n,x,0,z,w,h,d,M(c));box(n+" roof",x,h,z,w+.5,.35,d+.5,roof,false);for(let y=1.5;y<h;y+=2.4)for(let xx=-w/2+1;xx<w/2-1;xx+=2.8){box("Window",x+xx,y,z-d/2-.05,1.1,.9,.08,glass,false);box("Window",x+xx,y,z+d/2+.05,1.1,.9,.08,glass,false)}box(label,x,h+.45,z,Math.min(w,12),.45,.25,gold,false)}
+building("Science Faculty",-29,-25,18,13,12,0xd9d5c7,"SCIENCE");building("Arts Faculty",29,-25,18,13,10,0xe5d3b8,"ARTS");building("Engineering Faculty",-29,-49,20,14,13,0xc3d5df,"ENGINEERING");building("Business School",29,-49,18,14,10,0xdcc6a7,"BUSINESS");building("Library",0,-35,20,14,13,0xe8e0cc,"LIBRARY");building("Administration",-2,-62,19,12,11,0xd8d9d0,"ADMIN");building("ICT Centre",27,-67,15,12,8,0xc8d9e2,"ICT");building("Medical Centre",-28,-68,16,12,8,0xe7e3da,"MEDICAL");
+building("Girls Hostel A",-34,12,15,12,10,0xe9b9c8,"GIRLS A");building("Girls Hostel B",-34,30,15,12,10,0xe9b9c8,"GIRLS B");building("Boys Hostel A",34,12,15,12,10,0xb7d1e5,"BOYS A");building("Boys Hostel B",34,30,15,12,10,0xb7d1e5,"BOYS B");building("Royal Heights",-53,48,20,16,15,0xf0d7a0,"ROYAL HEIGHTS");building("Platinum Residence",53,48,20,16,15,0xc7d9e5,"PLATINUM");
+building("Cafeteria",-55,-8,13,10,5,0xe8b56b,"CAFETERIA");building("Supermarket",54,-8,12,10,5,0xe4d8b8,"MART");building("Printing Centre",-53,-25,10,8,4,0xc9d8dd,"PRINTING");building("Barber Shop",53,-25,10,8,4,0xd4b59b,"BARBER");building("Student Union",0,-83,20,12,8,0xd8d1bd,"STUDENT UNION");
+ground(0,43,38,25,M(0x438849));box("Love Garden gazebo",0,0,43,7,3,6,M(0xd9c18a));for(const [x,z] of [[-13,35],[13,35],[-13,50],[13,50],[-5,55],[5,55]]){box("Garden bench",x,.5,z,2.5,.4,.6,brown,false);box("Bench back",x,1,z+.25,2.5,.8,.2,brown,false)}
+building("Campus Chapel",-65,0,13,12,8,0xf1e7d3,"CHAPEL");box("Church cross",-65,9,0,.5,2,.3,gold,false);building("Victory Church",-65,20,15,12,9,0xe2d6bd,"VICTORY");building("Central Mosque",65,0,15,13,8,0xe7e4d4,"MOSQUE");const dome=new T.Mesh(new T.SphereGeometry(3,10,8),M(0x4e9b8b));dome.scale.y=.65;dome.position.set(65,9,0);scene.add(dome);box("Minaret",74,0,0,2,12,2,white);
+ground(-70,-52,38,25,M(0x428447));box("Football pitch",-70,.08,-52,34,.08,20,M(0x367d3c),false);box("Pitch line",-70,.14,-52,.12,.02,19,white,false);for(const x of [-87,-53]){box("Goal post",x,.1,-52,.3,2.5,.3,white,false);box("Goal bar",x,2.5,-52,4,.2,.2,white,false)}ground(70,-52,28,20,M(0x777c83));box("Tennis court",70,.08,-52,25,.1,16,M(0x357e73),false);box("Tennis net",70,1,-52,.15,1.5,16,white,false);box("Basketball court",-70,.08,-83,22,.1,13,M(0x9b785b),false);
+ground(78,78,38,35,M(0x285b32));building("Abandoned Building",78,78,18,13,9,0x77766e,"RESTRICTED");box("Broken wall",72,3,71,5,5,.5,M(0x55554f));box("Boarded window",84,4,71,2.2,2,.3,brown);box("Warning sign",78,1.5,68,4,1.4,.25,red);
+function tree(x,z,s=1){const tr=new T.Mesh(new T.CylinderGeometry(.25*s,.4*s,2.4*s,6),brown);tr.position.set(x,1.2*s,z);scene.add(tr);const c=new T.Mesh(new T.ConeGeometry(2*s,4*s,7),green);c.position.set(x,4*s,z);scene.add(c);const c2=new T.Mesh(new T.ConeGeometry(1.5*s,3*s,7),M(0x397d3c));c2.position.set(x,5.2*s,z);scene.add(c2);obstacles.push({x,z,hw:.7*s,hd:.7*s,name:"Tree"})}
+for(let z=-100;z<=100;z+=12){tree(-93,z,1.1);tree(93,z,1.1)}for(let x=-85;x<=85;x+=15){tree(x,-95,.9);tree(x,92,.9)}for(const [x,z] of [[-18,36],[18,36],[-18,52],[18,52],[-45,65],[45,65],[-48,-5],[48,-5],[-85,70],[-73,80],[89,72],[69,91]])tree(x,z,.9);
+for(let z=-100;z<=90;z+=24)for(const x of [-8,8]){box("Lamp",x,0,z,.15,5,.15,M(0x343941),false);box("Lamp head",x,5.1,z,1,.2,.5,gold,false)}
+function part(parent,w,h,d,material,x,y,z){const m=new T.Mesh(new T.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m}
+// Player: streetwear
+const player=new T.Group();part(player,.95,1.1,.52,shirt,0,1.65,0);part(player,.42,.43,.42,skin,0,2.45,0);const hair=new T.Mesh(new T.SphereGeometry(.43,10,7,0,Math.PI*2,0,Math.PI/2),M(0x171717));hair.position.set(0,2.63,0);player.add(hair);part(player,.28,.28,.28,skin,-.49,1.9,0);part(player,.28,.28,.28,skin,.49,1.9,0);
+const legL=part(player,.34,.85,.37,pants,-.24,.72,0),legR=part(player,.34,.85,.37,pants,.24,.72,0),armL=part(player,.24,.85,.27,shirt,-.62,1.65,0),armR=part(player,.24,.85,.27,shirt,.62,1.65,0);part(player,.38,.19,.55,shoes,-.24,.19,-.04);part(player,.38,.19,.55,shoes,.24,.19,-.04);player.position.set(0,0,75);scene.add(player);
+// NPC crowd: colourful students with independent roaming zones
+const students=[],shirts=[0x2877b8,0xe0a12b,0x7b4ab0,0x25875a,0xb84343,0xe7e3d9,0x222b46,0xd66c91,0x54a6a6,0x9c6b42],trousers=[0x242630,0x41434b,0x303e54,0x50483d,0x202020],skins=[0x75452f,0x9b6848,0xb9805c,0x633c2c];
+function student(x,z,i,zone=8){const g=new T.Group(),sm=M(shirts[i%shirts.length]),pm=M(trousers[i%trousers.length]),sk=M(skins[i%skins.length]),hm=M([0x171717,0x35251c,0x211d1b][i%3]);part(g,.72,.85,.38,sm,0,1.35,0);part(g,.34,.38,.34,sk,0,1.98,0);part(g,.37,.17,.38,hm,0,2.2,0);const la=part(g,.19,.65,.21,sm,-.46,1.35,0),ra=part(g,.19,.65,.21,sm,.46,1.35,0),ll=part(g,.25,.67,.28,pm,-.19,.54,0),rl=part(g,.25,.67,.28,pm,.19,.54,0);part(g,.29,.15,.38,shoes,-.19,.13,-.04);part(g,.29,.15,.38,shoes,.19,.13,-.04);g.position.set(x,0,z);scene.add(g);students.push({g,la,ra,ll,rl,dir:Math.random()*Math.PI*2,speed:.7+Math.random(),timer:Math.random()*3,phase:Math.random()*10,hx:x,hz:z,zone})}
+function crowd(x,z,n,spread=6,zone=8){for(let i=0;i<n;i++)student(x+(Math.random()-.5)*spread,z+(Math.random()-.5)*spread,students.length,zone)}
+crowd(-13,-12,5,7);crowd(13,-13,5,7);crowd(-22,17,4,6);crowd(22,17,4,6);crowd(-7,43,5,13);crowd(-46,-1,4,6);crowd(-70,-48,6,14);crowd(0,8,4,8);crowd(0,-10,4,8);
+function blocked(x,z,r=.48){for(const o of obstacles){const cx=Math.max(o.x-o.hw,Math.min(x,o.x+o.hw)),cz=Math.max(o.z-o.hd,Math.min(z,o.z+o.hd));if((x-cx)**2+(z-cz)**2<r*r)return o}return null}
+const keys={};addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+const pad=document.getElementById("joystick"),knob=document.getElementById("knob");let jx=0,jy=0,jactive=false;
+function joy(e){const r=pad.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),max=40,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}jx=dx/max;jy=dy/max;knob.style.left=41+dx+"px";knob.style.top=41+dy+"px"}
+function reset(){jactive=false;jx=jy=0;knob.style.left="39px";knob.style.top="39px"}pad.addEventListener("pointerdown",e=>{e.preventDefault();jactive=true;pad.setPointerCapture(e.pointerId);joy(e)});pad.addEventListener("pointermove",e=>{if(jactive)joy(e)});pad.addEventListener("pointerup",reset);pad.addEventListener("pointercancel",reset);
+let sprint=false;const run=document.getElementById("run");run.addEventListener("pointerdown",e=>{e.preventDefault();sprint=true});for(const ev of ["pointerup","pointercancel","pointerleave"])run.addEventListener(ev,()=>sprint=false);
+let yaw=0,pitch=.16,looking=false,lx=0,ly=0;const look=document.getElementById("look");look.addEventListener("pointerdown",e=>{looking=true;lx=e.clientX;ly=e.clientY;look.setPointerCapture(e.pointerId)});look.addEventListener("pointermove",e=>{if(!looking)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;yaw-=dx*.006;pitch=T.MathUtils.clamp(pitch+dy*.004,-.15,.65)});look.addEventListener("pointerup",()=>looking=false);look.addEventListener("pointercancel",()=>looking=false);
+const clock=new T.Clock(),target=new T.Vector3(),offset=new T.Vector3();let walkTime=0;const status=document.getElementById("status");
+function updateStudents(dt,t){for(const s of students){s.timer-=dt;if(s.timer<=0){s.timer=1.5+Math.random()*3.5;if(Math.random()<.2)s.speed=0;else{s.speed=.65+Math.random();s.dir=Math.random()*Math.PI*2}}if(s.speed>0){const dx=Math.sin(s.dir)*s.speed*dt,dz=Math.cos(s.dir)*s.speed*dt,nx=s.g.position.x+dx,nz=s.g.position.z+dz;if(!blocked(nx,nz)&&Math.abs(nx-s.hx)<s.zone&&Math.abs(nz-s.hz)<s.zone){s.g.position.x=nx;s.g.position.z=nz;s.g.rotation.y=Math.atan2(dx,dz)}else{s.dir+=Math.PI*(.5+Math.random());s.timer=.7}const sw=Math.sin(t*7+s.phase)*.4;s.ll.rotation.x=sw;s.rl.rotation.x=-sw;s.la.rotation.x=-sw*.6;s.ra.rotation.x=sw*.6}else{s.ll.rotation.x=s.rl.rotation.x=0;s.la.rotation.x=Math.sin(t*1.4+s.phase)*.08;s.ra.rotation.x=-s.la.rotation.x}}}
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;updateStudents(dt,t);let f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-jy,r=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+jx,L=Math.hypot(f,r);if(L>1){f/=L;r/=L}const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw),sp=sprint?12:6.5,dx=(fx*f+rx*r)*sp*dt,dz=(fz*f+rz*r)*sp*dt,nx=T.MathUtils.clamp(player.position.x+dx,-112,112),nz=T.MathUtils.clamp(player.position.z+dz,-112,112);if(!blocked(nx,player.position.z))player.position.x=nx;if(!blocked(player.position.x,nz))player.position.z=nz;status.textContent="Students: "+students.length+" â€¢ Explore campus";if(Math.abs(f)+Math.abs(r)>.05){player.rotation.y=Math.atan2(-dx,-dz);walkTime+=dt*(sprint?13:8);const sw=Math.sin(walkTime)*(sprint?.75:.42);legL.rotation.x=sw;legR.rotation.x=-sw;armL.rotation.x=-sw*.7;armR.rotation.x=sw*.7}else{legL.rotation.x=T.MathUtils.damp(legL.rotation.x,0,8,dt);legR.rotation.x=T.MathUtils.damp(legR.rotation.x,0,8,dt);armL.rotation.x=T.MathUtils.damp(armL.rotation.x,0,8,dt);armR.rotation.x=T.MathUtils.damp(armR.rotation.x,0,8,dt)}target.set(player.position.x,1.8,player.position.z);offset.set(Math.sin(yaw)*9,4+pitch*4,Math.cos(yaw)*9);camera.position.lerp(target.clone().add(offset),1-Math.exp(-7*dt));camera.lookAt(target);renderer.render(scene,camera)}
+status.textContent="Campus ready â€¢ "+students.length+" students spawned";animate();addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+}catch(e){document.getElementById("status").textContent="3D error: "+e.message;console.error(e)}
+</script></body></html>ive)moveJoy(e);});
 pad.addEventListener("pointerup",resetJoy);
 pad.addEventListener("pointercancel",resetJoy);
 
