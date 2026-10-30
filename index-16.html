@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SCU: South Coast University</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="styles.css"></head>
+<body><div id="app">
+<div id="map" class="view on"><div id="mapin"></div></div>
+<div id="room" class="view"><canvas id="gl"></canvas>
+ <div id="joy"><div id="stick"></div></div>
+ <div id="tally"></div>
+ <div id="tools"><button class="chip" id="exit" style="display:none">🚪 Outside</button><button class="chip" id="camb">👁️ First person</button><button class="chip" id="menub" style="display:none">📋 Menu</button><button class="chip" id="mvb">✋ Move furniture</button><button class="chip" id="sleep">😴 Sleep</button><button class="chip dk" id="buy">🛋️ Buy mode</button></div>
+</div>
+<div id="tint"></div><div id="rain"></div>
+<div id="hud"><div class="pill" id="clock"></div><div class="pill" id="where"></div><div class="pill" id="cash"></div></div>
+<div id="rail"><button class="rb act" id="gmap">🗺️</button><button class="rb" id="groom">🏠</button><button class="rb" id="gradio">📻</button><button class="rb" id="gphone">📱<i id="badge">3</i></button></div>
+<div id="energy" class="pill">⚡<div id="bar"><b></b></div><span id="ev"></span></div>
+<div id="act"></div>
+<div id="shop" class="panel"><div class="ph"><h2>Buy mode</h2><button class="chip" id="shopx">Done</button></div><div class="cats" id="cats"></div><div class="grid" id="shopgrid"></div></div>
+<div id="phone"><button id="pclose">✕</button><div id="scr"></div></div>
+<div id="prog"><div class="pbox"><b id="plabel"></b><div class="pbar"><i id="pfill"></i></div><span id="ptime"></span><button class="opt x" id="pskip">⏩ Skip</button></div></div>
+<div id="toast"></div>
+<div id="start"><div class="sun"></div><div id="sin"><span class="kick">Coastville · Admission 2026</span><h1>Welcome to South Coast University</h1>
+<p>Every choice follows you here: where you sleep, who you visit, what you spend, who sees you. Nobody picks the family they were born into, and there are no rerolls.</p>
+<div class="step"><b>First, who are you?</b><div class="bgs"><button data-g="m">🧑🏾 Male student</button><button data-g="f">👩🏾 Female student</button></div></div>
+<div class="step" id="s2" hidden><div id="roll">Your family background is decided by luck.</div><button class="go" id="rollbtn">Draw my family background</button><span class="odds">Odds: NEPO 15% · NAPO 50% · LAPO 35%</span></div></div></div>
+<div id="rot">Turn your phone sideways to play SCU</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="game.js"></script></body></html>
